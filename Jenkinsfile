@@ -93,6 +93,7 @@ pipeline {
             steps {
                 bat """
                     echo Sending test report via email...
+                    set PYTHONUTF8=1
                     %VENV_PATH%\\Scripts\\python.exe send_report_email.py
                 """
             }
@@ -102,6 +103,7 @@ pipeline {
             steps {
                 bat """
                     echo Publishing HTML report to Confluence...
+                    set PYTHONUTF8=1
                     %VENV_PATH%\\Scripts\\python.exe publish_to_confluence.py
                 """
             }
