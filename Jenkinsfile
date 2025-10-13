@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // 🔐 Credentials
+        // Credentials
         SMTP_HOST       = credentials('smtp-host')
         SMTP_PORT       = '587'
         SMTP_USER       = credentials('smtp-user')
@@ -24,15 +24,15 @@ pipeline {
             steps {
                 bat '''
                     @echo off
-                    echo 🐍 Checking Python...
+                    echo Checking Python...
                     python --version
 
-                    echo 📦 Creating virtual environment if it doesn't exist...
+                    echo Creating virtual environment if it doesn't exist...
                     if not exist "%VENV_PATH%" (
                         python -m venv %VENV_PATH%
                     )
 
-                    echo ✅ Python & pip in venv:
+                    echo Python & pip in venv:
                     %VENV_PATH%\\Scripts\\python.exe --version
                     %VENV_PATH%\\Scripts\\pip.exe --version
                 '''
@@ -41,7 +41,7 @@ pipeline {
 
         stage('Checkout from GitHub') {
             steps {
-                echo '📥 Checking out source code from GitHub repository...'
+                echo 'Checking out source code from GitHub repository...'
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: '*/main']],
@@ -56,7 +56,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat """
-                    echo 📦 Installing dependencies...
+                    echo Installing dependencies...
                     %VENV_PATH%\\Scripts\\python.exe -m pip install --upgrade pip
                     %VENV_PATH%\\Scripts\\python.exe -m pip install -r requirements.txt
                 """
@@ -66,7 +66,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 bat """
-                    echo 🧪 Running tests...
+                    echo Running tests...
                     if not exist "report" mkdir report
                     set PYTHONPATH=%CD%
                     %VENV_PATH%\\Scripts\\python.exe -m pytest --html=%REPORT_PATH% --self-contained-html || exit /b 0
@@ -82,7 +82,8 @@ pipeline {
         stage('Test Confluence API') {
             steps {
                 bat """
-                    echo 🔎 Verifying Confluence API...
+                    echo Verifying Confluence API...
+                    set PYTHONUTF8=1
                     %VENV_PATH%\\Scripts\\python.exe check_api_token.py
                 """
             }
@@ -91,7 +92,7 @@ pipeline {
         stage('Email Report') {
             steps {
                 bat """
-                    echo 📧 Sending test report via email...
+                    echo Sending test report via email...
                     %VENV_PATH%\\Scripts\\python.exe send_report_email.py
                 """
             }
@@ -100,7 +101,7 @@ pipeline {
         stage('Publish to Confluence') {
             steps {
                 bat """
-                    echo 🌐 Publishing HTML report to Confluence...
+                    echo Publishing HTML report to Confluence...
                     %VENV_PATH%\\Scripts\\python.exe publish_to_confluence.py
                 """
             }
@@ -108,7 +109,7 @@ pipeline {
     }
 
     post {
-        success { echo '✅ Pipeline completed successfully!' }
-        failure { echo '❌ Pipeline failed. Check logs!' }
+        success { echo 'Pipeline completed successfully!' }
+        failure { echo 'Pipeline failed. Check logs!' }
     }
 }
