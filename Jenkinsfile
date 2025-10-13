@@ -2,52 +2,39 @@ pipeline {
     agent any
 
     environment {
-        // 🔐 SMTP credentials for sending test report emails
+        // 🔐 Credentials
         SMTP_HOST       = credentials('smtp-host')
         SMTP_PORT       = '587'
         SMTP_USER       = credentials('smtp-user')
         SMTP_PASS       = credentials('smtp-pass')
-
-        // 🔐 Confluence credentials for publishing report
         CONFLUENCE_BASE  = credentials('confluence-base')
         CONFLUENCE_USER  = credentials('confluence-user')
         CONFLUENCE_TOKEN = credentials('confluence-token')
         CONFLUENCE_SPACE = 'DEMO'
         CONFLUENCE_TITLE = 'CI Test Report'
-
-        // 🧩 GitHub repository credentials for private repo access
         GITHUB_CREDENTIALS = credentials('github-credentials')
 
-        // 📄 Test report file path
-        REPORT_PATH = 'report/report.html'
-        
-        // Ensure Python from venv is used in all stages
+        // Paths
+        REPORT_PATH = 'report\\report.html'
         VENV_PATH   = '.venv'
-        PATH        = "${WORKSPACE}/.venv/bin:${env.PATH}"
     }
 
     stages {
         stage('Setup Python Environment') {
             steps {
-                sh '''
-                    set -eux
-
-                    echo "🐍 Checking Python..."
-                    python3 --version
-
-                    echo "📦 Bootstrapping pip and virtualenv..."
-                    curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-                    python3 get-pip.py --user --break-system-packages || true
-                    python3 -m pip install --user virtualenv --break-system-packages || true
-
-                    echo "🏗️ Creating local virtual environment..."
-                    if [ ! -d "${VENV_PATH}" ]; then
-                        ~/.local/bin/virtualenv ${VENV_PATH} || python3 -m venv ${VENV_PATH} || true
-                    fi
-
-                    echo "✅ Python & pip inside venv:"
+                bat '''
+                    @echo off
+                    echo 🐍 Checking Python...
                     python --version
-                    pip --version
+
+                    echo 📦 Creating virtual environment if it doesn't exist...
+                    if not exist "%VENV_PATH%" (
+                        python -m venv %VENV_PATH%
+                    )
+
+                    echo ✅ Python & pip in venv:
+                    %VENV_PATH%\\Scripts\\python.exe --version
+                    %VENV_PATH%\\Scripts\\pip.exe --version
                 '''
             }
         }
@@ -59,7 +46,7 @@ pipeline {
                     $class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/devopsuser8413/flask-login-ci-confluence.git',
+                        url: 'https://github.com/devopsuser8413/flask-login-ci-confluence-win.git',
                         credentialsId: 'github-credentials'
                     ]]
                 ])
@@ -68,57 +55,60 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    echo "📦 Installing dependencies..."
-                    pip install --upgrade pip --break-system-packages
-                    pip install -r requirements.txt --break-system-packages
-                '''
+                bat """
+                    echo 📦 Installing dependencies...
+                    %VENV_PATH%\\Scripts\\python.exe -m pip install --upgrade pip
+                    %VENV_PATH%\\Scripts\\python.exe -m pip install -r requirements.txt
+                """
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    echo "🧪 Running tests..."
-                    mkdir -p report
-                    PYTHONPATH=$PWD pytest --html=${REPORT_PATH} --self-contained-html || true
-                '''
+                bat """
+                    echo 🧪 Running tests...
+                    if not exist "report" mkdir report
+                    set PYTHONPATH=%CD%
+                    %VENV_PATH%\\Scripts\\python.exe -m pytest --html=%REPORT_PATH% --self-contained-html || exit /b 0
+                """
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'report/report.html', fingerprint: true
+                    archiveArtifacts artifacts: 'report\\report.html', fingerprint: true
                 }
             }
         }
 
         stage('Test Confluence API') {
             steps {
-                echo '🔎 Verifying Confluence API token and permissions using check_api_token.py...'
-                sh 'python check_api_token.py'
+                bat """
+                    echo 🔎 Verifying Confluence API...
+                    %VENV_PATH%\\Scripts\\python.exe check_api_token.py
+                """
             }
         }
 
         stage('Email Report') {
             steps {
-                echo '📧 Sending test report via email...'
-                sh 'python send_report_email.py'
+                bat """
+                    echo 📧 Sending test report via email...
+                    %VENV_PATH%\\Scripts\\python.exe send_report_email.py
+                """
             }
         }
 
         stage('Publish to Confluence') {
             steps {
-                echo '🌐 Publishing HTML report to Confluence page...'
-                sh 'python publish_to_confluence.py'
+                bat """
+                    echo 🌐 Publishing HTML report to Confluence...
+                    %VENV_PATH%\\Scripts\\python.exe publish_to_confluence.py
+                """
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Pipeline completed successfully! Report emailed and published to Confluence.'
-        }
-        failure {
-            echo '❌ Pipeline failed. Check the Jenkins console output for details.'
-        }
+        success { echo '✅ Pipeline completed successfully!' }
+        failure { echo '❌ Pipeline failed. Check logs!' }
     }
 }
