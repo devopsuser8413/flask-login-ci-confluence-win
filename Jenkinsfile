@@ -116,6 +116,16 @@ pipeline {
             }
         }
 
+        stage('Publish to Confluence') {
+            steps {
+                bat """
+                    echo Publishing HTML report to Confluence...
+                    set PYTHONUTF8=1
+                    %VENV_PATH%\\Scripts\\python.exe publish_to_confluence.py
+                """
+            }
+        }
+
         stage('Email Report') {
             steps {
                 bat """
@@ -126,15 +136,6 @@ pipeline {
             }
         }
 
-        stage('Publish to Confluence') {
-            steps {
-                bat """
-                    echo Publishing HTML report to Confluence...
-                    set PYTHONUTF8=1
-                    %VENV_PATH%\\Scripts\\python.exe publish_to_confluence.py
-                """
-            }
-        }
     }
 
     post {
