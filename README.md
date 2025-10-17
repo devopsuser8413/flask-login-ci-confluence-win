@@ -1,6 +1,7 @@
+
 # 🚀 Software Installation and Jenkins CI/CD Setup Guide
 
-A complete step-by-step guide to set up Java, Python, Jenkins, and a Jenkins CI/CD pipeline that automates testing and publishes reports to Confluence.
+A complete step-by-step guide to set up **Java**, **Python**, **Jenkins**, and a **Jenkins CI/CD pipeline** that automates testing and publishes reports to **Confluence**.
 
 ---
 
@@ -17,54 +18,175 @@ A complete step-by-step guide to set up Java, Python, Jenkins, and a Jenkins CI/
    ```
 4. **Set `JAVA_HOME`** in environment variables.
 
+#### Option A — Using GUI
+
+1. Press **Windows + R**, type `sysdm.cpl`, and press **Enter**.  
+2. Go to **Advanced → Environment Variables...**  
+3. Under **System variables**, click **New**:  
+   - **Variable name:** `JAVA_HOME`  
+   - **Variable value:** `C:\Program Files\Java\jdk-17`  
+4. Click **OK**, then edit the **Path** variable → click **New**, and add:  
+   ```
+   %JAVA_HOME%\bin
+   ```
+5. Click **OK** on all dialogs to save and apply changes.
+
+#### Option B — Using PowerShell (Admin)
+
+Run the following commands in an **Administrator PowerShell** window:
+
+```powershell
+setx JAVA_HOME "C:\Program Files\Java\jdk-17"
+setx PATH "%PATH%;%JAVA_HOME%\bin"
+```
+
+✅ **Verify**
+
+Run the following commands to confirm setup:
+```bash
+echo %JAVA_HOME%
+java -version
+```
+
 ---
 
 ### 🐍 1.2 Install Python
 
-1. **Download Python 3.x:**  
-   🔗 [https://www.python.org/downloads/](https://www.python.org/downloads/)
-2. During installation, select ✅ **“Add Python to PATH”**.
-3. **Verify installation:**
-   ```bash
-   python --version
+#### 1.2.1 Download Python
+Download **Python 3.x** from the official website:  
+👉 [https://www.python.org/downloads/](https://www.python.org/downloads/)
+
+During installation, make sure to **select** the option **“Add Python to PATH”**.
+
+---
+
+#### 1.2.2 Option A — Add Python to PATH (If not selected during installation)
+
+1. Press **Windows + R**, type `sysdm.cpl`, and press **Enter**.  
+2. Go to **Advanced → Environment Variables...**  
+3. Under **System variables**, select **Path → Edit**.  
+4. Click **New** and add the following Python installation paths (example below):
    ```
+   C:\Users\<YourUsername>\AppData\Local\Programs\Python\Python311\
+   C:\Users\<YourUsername>\AppData\Local\Programs\Python\Python311\Scripts\
+   ```
+5. Click **OK** on all dialogs to save changes.
+
+---
+
+#### 1.2.3 Option B — Using PowerShell (Admin)
+
+Run the following command in **PowerShell (Administrator)**:
+
+```powershell
+setx PATH "%PATH%;C:\Users\<YourUsername>\AppData\Local\Programs\Python\Python311;C:\Users\<YourUsername>\AppData\Local\Programs\Python\Python311\Scripts" /M
+```
+
+✅ **Verify Installation**
+
+Run the following command to confirm setup:
+```bash
+python --version
+```
 
 ---
 
 ### 🧰 1.3 Install Jenkins
 
-1. **Download Jenkins LTS:**  
-   🔗 [https://www.jenkins.io/download/](https://www.jenkins.io/download/)
-2. Run Jenkins as a **Windows service** or via **command line**.
-3. Access Jenkins UI at:  
-   👉 [http://localhost:8080](http://localhost:8080)
-4. Unlock Jenkins using:
+#### 1.3.1 Download Jenkins LTS
+Download the latest **Jenkins LTS** installer for Windows from the official website:  
+🔗 [https://www.jenkins.io/download/](https://www.jenkins.io/download/)
+
+---
+
+#### 1.3.2 Install Jenkins
+You can install Jenkins in one of two ways:
+
+- **Option A — As a Windows Service:**  
+  Run the installer and choose the option to **install Jenkins as a service**.
+
+- **Option B — Via Command Line:**  
+  Run Jenkins manually using the `.war` file:  
+  ```bash
+  java -jar jenkins.war
+  ```
+
+Once installed, Jenkins will typically start automatically.
+
+---
+
+#### 1.3.3 Access Jenkins UI
+
+After installation, open your browser and go to:  
+👉 [http://localhost:8080](http://localhost:8080)
+
+---
+
+#### 1.3.4 Unlock Jenkins
+
+To unlock Jenkins for the first time, retrieve the admin password from:
+
+```
+C:\ProgramData\Jenkins\.jenkins\secrets\initialAdminPassword
+```
+
+Copy the password and paste it into the Jenkins setup wizard.
+
+---
+
+#### 1.3.5 🧰 Add Jenkins to System PATH (Windows)
+
+If Jenkins is not recognized in the command prompt, you can manually add it to your **PATH**.
+
+**Option A — GUI Method**
+
+1. Press **Windows + R**, type `sysdm.cpl`, and press **Enter**.  
+2. Go to **Advanced → Environment Variables...**  
+3. Under **System variables**, select **Path → Edit**.  
+4. Click **New** and add the Jenkins installation path (for example):  
    ```
-   C:\ProgramData\Jenkins\.jenkins\secrets\initialAdminPassword
+   C:\Program Files\Jenkins
    ```
+5. Click **OK** to save and close all dialogs.
+
+**Option B — PowerShell (Admin)**
+
+Run the following command to add Jenkins to the PATH:
+
+```powershell
+setx PATH "%PATH%;C:\Program Files\Jenkins" /M
+```
+
+✅ **Verify Jenkins PATH Setup**
+
+To verify Jenkins is accessible from the command line, open **Command Prompt** or **PowerShell** and run:
+```bash
+jenkins --version
+```
 
 ---
 
 ## ⚙️ 2. Jenkins UI and Plugin Setup
 
-1. Login to **Jenkins UI**.
-2. Navigate to **Manage Jenkins → Manage Plugins**.
+1. Login to **Jenkins UI**.  
+2. Navigate to **Manage Jenkins → Manage Plugins**.  
 3. **Install the following plugins:**
    - 🔹 GitHub Plugin  
    - 🔹 Email Extension Plugin  
    - 🔹 Pipeline Plugin  
    - 🔹 Python Plugin  
-   - 🔹 Confluence Publisher Plugin
+   - 🔹 Confluence Publisher Plugin  
 4. Restart Jenkins after installation.
 
 ---
 
 ## 🔑 3. Jenkins Credentials Setup
 
-1. Go to **Manage Jenkins → Credentials → Global credentials**.
+1. Go to **Manage Jenkins → Credentials → Global credentials**.  
 2. Add the following credentials:
 
 ### 🧭 GitHub Credentials
+
 | Field | Value |
 |-------|--------|
 | **ID** | `github-credentials` |
@@ -74,6 +196,7 @@ A complete step-by-step guide to set up Java, Python, Jenkins, and a Jenkins CI/
 ---
 
 ### ✉️ SMTP (Email) Credentials
+
 | Credential ID | Description | Secret |
 |----------------|--------------|---------|
 | `smtp-host` | SMTP server host | `smtp.gmail.com` |
@@ -83,6 +206,7 @@ A complete step-by-step guide to set up Java, Python, Jenkins, and a Jenkins CI/
 ---
 
 ### 📘 Confluence Credentials
+
 | Credential ID | Description | Secret |
 |----------------|-------------|---------|
 | `confluence-user` | Confluence username | `xxxxxxxxxx@gmail.com` |
@@ -116,7 +240,7 @@ A complete step-by-step guide to set up Java, Python, Jenkins, and a Jenkins CI/
 
 ## 🧾 5. Jenkinsfile Script Creation
 
-1. In your GitHub repository, create a file named **`Jenkinsfile`**.
+1. In your **GitHub repository**, create a file named **`Jenkinsfile`**.
 2. Define the following **pipeline stages**:
    - 🧩 Checkout code from GitHub  
    - 🐍 Install Python dependencies  
@@ -127,6 +251,7 @@ A complete step-by-step guide to set up Java, Python, Jenkins, and a Jenkins CI/
    - 📘 Publish report to Confluence  
 
 Example:
+
 ```groovy
 pipeline {
     agent any
