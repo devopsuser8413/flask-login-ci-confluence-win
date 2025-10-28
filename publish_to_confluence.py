@@ -10,9 +10,9 @@ CONFLUENCE_BASE = os.getenv('CONFLUENCE_BASE')
 CONFLUENCE_USER = os.getenv('CONFLUENCE_USER')
 CONFLUENCE_TOKEN = os.getenv('CONFLUENCE_TOKEN')
 
-CONFLUENCE_SPACE = os.getenv('CONFLUENCE_SPACE', 'DEMO')  # default space
-CONFLUENCE_TITLE = os.getenv('CONFLUENCE_TITLE', 'CI Test Report')
-REPORT_PATH = os.getenv('REPORT_PATH', 'report/report.html')
+CONFLUENCE_SPACE = os.getenv('CONFLUENCE_SPACE')  # default space
+CONFLUENCE_TITLE = os.getenv('CONFLUENCE_TITLE')
+REPORT_PATH = os.getenv('REPORT_PATH')
 
 auth = HTTPBasicAuth(CONFLUENCE_USER, CONFLUENCE_TOKEN)
 headers = {
