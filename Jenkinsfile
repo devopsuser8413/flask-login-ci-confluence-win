@@ -13,7 +13,7 @@ pipeline {
         CONFLUENCE_BASE  = credentials('confluence-base')
         CONFLUENCE_USER  = credentials('confluence-user')
         CONFLUENCE_TOKEN = credentials('confluence-token')
-        CONFLUENCE_SPACE = 'devopsuser8413'
+        CONFLUENCE_SPACE = 'Jenkins'
         CONFLUENCE_TITLE = 'CI Test Report'
         GITHUB_CREDENTIALS = credentials('github-credentials')
 
@@ -94,6 +94,7 @@ pipeline {
                 bat """
                     call %VENV_PATH%\\Scripts\\activate
                     echo Verifying Confluence API connection...
+                    set PYTHONUTF8=1
                     python check_api_token.py
                 """
             }
@@ -104,6 +105,7 @@ pipeline {
                 bat """
                     call %VENV_PATH%\\Scripts\\activate
                     echo Publishing test report to Confluence...
+                    set PYTHONUTF8=1
                     python publish_to_confluence.py
                 """
             }
@@ -114,6 +116,7 @@ pipeline {
                 bat """
                     call %VENV_PATH%\\Scripts\\activate
                     echo Sending test report via email...
+                    set PYTHONUTF8=1
                     python send_report_email.py
                 """
             }
