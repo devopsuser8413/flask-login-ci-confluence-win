@@ -13,7 +13,7 @@ pipeline {
         CONFLUENCE_BASE  = credentials('confluence-base')
         CONFLUENCE_USER  = credentials('confluence-user')
         CONFLUENCE_TOKEN = credentials('confluence-token')
-        CONFLUENCE_SPACE = 'DEMO'
+        CONFLUENCE_SPACE = 'devopsuser8413'
         CONFLUENCE_TITLE = 'CI Test Report'
         GITHUB_CREDENTIALS = credentials('github-credentials')
 
